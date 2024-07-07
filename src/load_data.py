@@ -39,7 +39,32 @@ def load_data(folder,numImages=200,height=600,width=800):
     returns:
         imgs (np.array): The 200 images as monochromatic images in uint8 type format
     """
-    raise NotImplementedError
+    folder_path = os.path.join('pic//HW2_data//', folder)
+    
+    # Get the list of RAW files in the folder
+    raw_files = sorted(glob.glob(os.path.join(folder_path, '*.raw')))
+    
+    # Initialize an array to store images
+    imgs = np.zeros((numImages, height, width), dtype=np.uint8)
+    
+    # Loop through the files and load the images
+    for i, file in enumerate(raw_files[:numImages]):
+        # Load the image data from the RAW file
+        img_data = np.fromfile(file, dtype=np.uint8)
+        
+        # Reshape the image data to the specified dimensions
+        img_data = img_data.reshape((height, width))
+        
+        # Store the reshaped image in the array
+        imgs[i] = img_data
+    
+    # Transpose the array to get the shape (height, width, numImages)
+    imgs = np.transpose(imgs, (1, 2, 0))
+    
+    return imgs
+
+
+    #raise NotImplementedError
 
 def load_dataset():
     """
@@ -55,4 +80,20 @@ def load_dataset():
         sensitivy (np.array): A numpy array containing [0,1,3,9,14,18]
     
     """
-    raise NotImplementedError
+    sensitivities = [0, 1, 3, 9, 14, 18]
+    height = 600
+    width = 800
+    numImages = 200
+    
+    dark = np.zeros((height, width, numImages, len(sensitivities)), dtype=np.uint8)
+    imgs = np.zeros((height, width, numImages, len(sensitivities)), dtype=np.uint8)
+    
+    for i, sensitivity in enumerate(sensitivities):
+        dark_folder = f'dark_{sensitivity}'
+        white_folder = f'white_{sensitivity}'
+        
+        # Load dark and white images for the current sensitivity
+        dark[:, :, :, i] = load_data(dark_folder, numImages, height, width)
+        imgs[:, :, :, i] = load_data(white_folder, numImages, height, width)
+    
+    return dark, imgs, np.array(sensitivities)

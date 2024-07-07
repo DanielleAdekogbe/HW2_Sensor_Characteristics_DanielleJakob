@@ -36,7 +36,40 @@ def plot_input_histogram(imgs,sensitivity):
         imgs(np.ndarray): 3-dimensional array containing one image per intensity setting (not all the 200)
     
     """
-    raise NotImplementedError
+
+    num_sensitivities = len(sensitivity)
+    
+    # Ensure the number of sensitivity settings matches the third dimension of imgs
+    if num_sensitivities != imgs.shape[2]:
+        raise ValueError(f"Number of sensitivity settings ({num_sensitivities}) does not match the number of images ({imgs.shape[2]}).")
+    
+    # Create subplots
+    cols = 3
+    rows = int(np.ceil(num_sensitivities / cols))
+    fig, axes = plt.subplots(rows, cols, figsize=(15, 5 * rows))
+    axes = axes.flatten()
+    
+    for i in range(num_sensitivities):
+        ax = axes[i]
+        img = imgs[:, :, i]
+        
+        # Create the histogram for the image
+        ax.hist(img.ravel(), bins=256, range=(0, 255), alpha=0.75, color='gray')
+        ax.set_title(f'Sensitivity Level {sensitivity[i]}')
+        ax.set_xlim([0, 255])
+        ax.set_xlabel('Pixel Intensity')
+        ax.set_ylabel('Frequency')
+        ax.grid(True)
+    
+    # Hide any extra subplots
+    for i in range(num_sensitivities, len(axes)):
+        fig.delaxes(axes[i])
+    
+    plt.tight_layout()
+    plt.show()
+
+    
+    
         
 def plot_histograms_channels(img,sensitivity):
     """
